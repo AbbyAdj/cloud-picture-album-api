@@ -3,7 +3,7 @@
 from pg8000.native import literal, identifier
 from src.data.queries import queries
 from src.utils.db_utils import get_table_columns, run_query
-
+from src.models.models import AddNewUserModel
 
 def util_return_all_users() -> dict:
     all_users_query = queries["all_users"]
@@ -22,10 +22,12 @@ def util_return_all_pictures() -> dict:
     all_pictures = run_query(all_pictures_query, "pictures")
     return all_pictures
 
+
 def util_return_picture() -> dict:
     picture_query = queries["one_picture"]
     picture = run_query(picture_query, "picture")
     return picture
+
 
 def util_return_user_details(user_id: int) -> dict:
     user_details_query = queries["user_details"].format(user_id=literal(user_id))
@@ -33,7 +35,13 @@ def util_return_user_details(user_id: int) -> dict:
     return user_details
 
 
-def util_return_user_album_details(user_id, album_id) -> dict:
+def util_return_user_albums(user_id: int) -> dict:
+    user_albums_query = queries["user_albums"].format(user_id=literal(user_id))
+    user_albums = run_query(user_albums_query, "albums")
+    return  user_albums
+
+
+def util_return_user_album_details(user_id: int, album_id: int) -> dict:
     user_album_query = queries["user_album"].format(
         user_id=literal(user_id), album_id=literal(album_id)
     )
@@ -46,7 +54,32 @@ def util_return_all_user_pictures(user_id) -> dict:
     all_user_pictures = run_query(all_user_pictures_query, "pictures")
     return all_user_pictures
 
-# TODO ADD NEW USER
+
+def util_add_new_user(user_details:AddNewUserModel) -> dict:
+
+    new_user_query = queries["add_new_user"].format(
+        first_name=literal(user_details.first_name),
+        last_name=literal(user_details.last_name)
+        )
+
+    new_user_id = run_query(new_user_query)
+
+    new_user_album_query = queries["add_new_user_default_album"].format(
+        user_id = literal(new_user_id[0]["user_id"])
+    )
+    
+    new_album_response = run_query(new_user_album_query)
+
+    return {"message": "User created successfully",
+            "Details": {
+                "first_name": user_details.first_name,
+                "last_name": user_details.last_name,
+                "user_id": new_album_response[0]["user_id"],
+                "album_id": new_album_response[0]["album_id"],
+                "album_name": new_album_response[0]["album_name"]
+                        }
+            }
+
 
 def util_insert_new_picture(user_id, album_id, metadata) -> dict:
     if "error" in metadata.keys():
@@ -106,7 +139,9 @@ util_funcs = {
     "one_picture": util_return_picture,
     "user_details": util_return_user_details,
     "user_album_details": util_return_user_album_details,
+    "user_albums": util_return_user_albums,
     "all_user_pictures": util_return_all_user_pictures,
+    "add_new_user": util_add_new_user,
     "insert_new_picture": util_insert_new_picture,
     "delete_user_picture": util_delete_user_picture,
     "delete_user_album": util_delete_user_album,
