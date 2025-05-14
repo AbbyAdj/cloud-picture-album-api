@@ -15,8 +15,10 @@ all_users_sql = """
 
 all_albums_sql = """
         SELECT 
+            u.user_id,
             u.first_name AS user_first_name,
             u.last_name AS user_last_name,
+            a.album_id,
             a.album_name,
             a.album_s3_path,
             a.album_description
@@ -74,10 +76,10 @@ user_albums_sql = """
         FROM users u
         JOIN albums a
         ON u.user_id = a.user_id
-        JOIN pictures p
+        LEFT JOIN pictures p
         ON u.user_id = p.user_id
         WHERE u.user_id = {user_id}
-        GROUP BY a.album_name, a.album_description
+        GROUP BY a.album_name, a.album_description, a.album_id
         ORDER BY a.album_id;
 """
 
@@ -89,12 +91,12 @@ user_album_sql = """
             p.picture_description,
             p.date_created
         FROM pictures p
-        JOIN albums a
+        RIGHT JOIN albums a
         ON p.album_id = a.album_id
         WHERE 
-            p.user_id = {user_id} 
+            a.user_id = {user_id} 
             AND 
-            p.album_id = {album_id}
+            a.album_id = {album_id}
         ORDER BY p.picture_id;
 """
 
@@ -117,9 +119,18 @@ user_pictures_sql = """
 add_new_user_sql = """
         INSERT INTO users
         (first_name, last_name)
+        VALUES
+        ({first_name}, {last_name})
+        RETURNING user_id
 """
-# TODO FINISH QUERY ABOVE, NEEDS TO TRIGGER INSERT FOR
-# TABLES THAT REFERENCE IT
+
+add_new_user_default_album_sql = """
+        INSERT INTO albums
+        (album_name, album_s3_path, album_description, user_id)
+        VALUES
+        ('default', 'user-{user_id}', 'user {user_id} album', {user_id})
+        RETURNING *
+"""
 
 add_new_picture_sql = """
         INSERT INTO pictures
@@ -168,6 +179,8 @@ queries = {
     "user_albums": user_albums_sql,
     "user_album": user_album_sql,
     "user_pictures": user_pictures_sql,
+    "add_new_user": add_new_user_sql,
+    "add_new_user_default_album": add_new_user_default_album_sql,
     "add_new_picture": add_new_picture_sql,
     "delete_user_picture": delete_user_picture_sql,
     "delete_user_album": delete_user_album_sql,
