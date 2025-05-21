@@ -1,6 +1,8 @@
 from pprint import pprint
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
 from pg8000.dbapi import DatabaseError
+import boto3
+from botocore.exceptions import ClientError
 from src.utils.db_operations import util_funcs
 from src.models.models import PostPictureModel, AddNewUserModel
 # from src.api.exception_handler import database_error_handler
@@ -8,6 +10,7 @@ from src.utils.aws_utils import insert_into_bucket, delete_object_from_bucket, d
 
 app = FastAPI()
 
+s3_client = boto3.client("s3")
 
 ###########################
 # GET REQUESTS
@@ -82,7 +85,7 @@ def post_new_picture(user_id: int,
     
     album_name = "" if picture_metadata.album_name == "default" else picture_metadata.album_name
 
-    s3_upload_response = insert_into_bucket(file=new_file, user_given_metadata=picture_metadata, album_name=album_name)
+    s3_upload_response = insert_into_bucket(s3_client, file=new_file, user_given_metadata=picture_metadata, album_name=album_name)
 
     response = util_funcs["insert_new_picture"](
         user_id=user_id, 
@@ -98,6 +101,8 @@ def post_new_picture(user_id: int,
 
 # TODO TO BE IMPLEMENTED LATER
 
+
+
 ###########################
 # DELETE REQUESTS
 ###########################
@@ -106,9 +111,9 @@ def post_new_picture(user_id: int,
 @app.delete("/users/{user_id}/pictures/{picture_id}")
 def delete_user_picture(user_id: int, picture_id: int):
 
-    picture_key = util_funcs["one_picture"]["picture"]["picture_name"]
+    picture_key = util_funcs["one_picture"]["picture"]["s3_key_name"]
     
-    s3_delete_response = delete_object_from_bucket(file_key=picture_key)
+    s3_delete_response = delete_object_from_bucket(s3_client, file_key=picture_key)
 
     response = util_funcs["delete_user_picture"](user_id=user_id, 
                                                  picture_id=picture_id,
@@ -119,9 +124,9 @@ def delete_user_picture(user_id: int, picture_id: int):
 @app.delete("/users/{user_id}/albums/{album_id}")
 def delete_user_album(user_id: int, album_id: int):
 
-    album_key = util_funcs["user_album_details"]["album"]["album_name"]
+    album_key = util_funcs["user_album_details"]["album"]["album_s3_path"]
 
-    s3_delete_response = delete_album_from_bucket(album_key=album_key)
+    s3_delete_response = delete_album_from_bucket(s3_client, album_key=album_key)
 
     response = util_funcs["delete_user_album"](user_id=user_id, 
                                                album_id=album_id,
