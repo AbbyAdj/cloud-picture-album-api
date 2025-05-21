@@ -12,7 +12,7 @@ CREATE TABLE public.users (
 
 CREATE TABLE public.albums (
     album_id SERIAL PRIMARY KEY,
-    album_name VARCHAR NOT NULL,
+    album_name VARCHAR UNIQUE NOT NULL,
     album_s3_path TEXT NOT NULL,
     album_description TEXT,
     user_id INT REFERENCES users(user_id)
