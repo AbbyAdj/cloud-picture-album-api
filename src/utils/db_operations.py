@@ -5,6 +5,7 @@ from src.data.queries import queries
 from src.utils.db_utils import get_table_columns, run_query
 from src.models.models import AddNewUserModel
 
+
 def util_return_all_users() -> dict:
     all_users_query = queries["all_users"]
     all_users = run_query(all_users_query, json_key="users")
@@ -102,7 +103,7 @@ def util_delete_user_picture(user_id, picture_id, delete_confimation) -> dict:
     if "error" in delete_confimation.keys():
         return delete_confimation
     
-    elif "success" in delete_confimation.keys():
+    elif "Success" in delete_confimation.keys():
         delete_user_picture_query = queries["delete_user_picture"].format(
             user_id=literal(user_id), picture_id=literal(picture_id)
         )
@@ -118,7 +119,7 @@ def util_delete_user_album(user_id, album_id, delete_confirmation) -> dict:
     if "error" in delete_confirmation.keys():
         return delete_confirmation  
     
-    elif "success" in delete_confirmation.keys():
+    elif "Success" in delete_confirmation.keys():
 
         delete_user_album_query = queries["delete_user_album"].format(
             user_id=literal(user_id), picture_id=literal(album_id)
