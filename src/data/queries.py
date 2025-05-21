@@ -86,6 +86,7 @@ user_albums_sql = """
 user_album_sql = """
         SELECT 
             a.album_name,
+            a.album_s3_path,
             p.picture_name,
             p.s3_key_name AS download_link,
             p.picture_description,
@@ -166,8 +167,8 @@ delete_user_picture_sql = """
 delete_user_album_sql = """
     DELETE
     FROM albums
-    WHERE albums.album_id = :album_id
-    RETURNING albums.user_id, albums.album_id
+    WHERE album_id = :album_id
+    RETURNING user_id, album_id, album_s3_path
 """
 
 queries = {
