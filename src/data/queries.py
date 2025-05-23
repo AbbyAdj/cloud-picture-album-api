@@ -36,7 +36,7 @@ all_pictures_sql = """
             u.last_name AS user_last_name,
             p.picture_name,
             a.album_name,
-            p.s3_key_name AS s3_bucket_path,
+            p.s3_key_name AS picture_s3_path,
             p.picture_description,
             p.date_created
         FROM pictures p
@@ -88,7 +88,7 @@ user_album_sql = """
             a.album_name,
             a.album_s3_path,
             p.picture_name,
-            p.s3_key_name AS download_link,
+            p.s3_key_name AS picture_s3_path
             p.picture_description,
             p.date_created
         FROM pictures p
@@ -105,7 +105,7 @@ user_pictures_sql = """
         SELECT
             p.picture_name,
             a.album_name,
-            p.s3_key_name AS download_link,
+            p.s3_key_name AS picture_s3_path,
             p.date_created,
             p.picture_description
         FROM users u
