@@ -36,7 +36,9 @@ def run_query(query: str, json_key: str | None = None) -> dict | list:
         db_conn = connect_to_db()
 
     except DatabaseError as e:
+        # TODO: Might need to change to a return 
         print(e)
+        return {"message": "Error occured during database operation"}
 
     else:
         db_result = db_conn.run(query)
