@@ -1,8 +1,8 @@
 """Handles all database operations using pg8000 and src.utils.db_utils."""
 
-from pg8000.native import literal, identifier
+from pg8000.native import literal
 from src.data.queries import queries
-from src.utils.db_utils import get_table_columns, run_query
+from src.utils.db_utils import run_query
 from src.models.models import AddNewUserModel
 
 
@@ -24,8 +24,8 @@ def util_return_all_pictures() -> dict:
     return all_pictures
 
 
-def util_return_picture() -> dict:
-    picture_query = queries["one_picture"]
+def util_return_picture(picture_id: int) -> dict:
+    picture_query = queries["one_picture"].format(picture_id=literal(picture_id))
     picture = run_query(picture_query, "picture")
     return picture
 
