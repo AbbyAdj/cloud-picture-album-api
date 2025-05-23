@@ -82,8 +82,10 @@ def post_new_picture(user_id: int,
                      picture_metadata: PostPictureModel = Form(...),
                      new_file: UploadFile = File(...)
                      ):
-    
-    album_name = "" if picture_metadata.album_name == "default" else picture_metadata.album_name
+    user_album_response = util_funcs["user_album_details"](user_id=user_id, album_id=album_id)["album"]
+    user_album_name = user_album_response.get("album_name", default="")
+    # If i receive an album id that is not valid, I will put it in the default user album
+    album_name = "" if user_album_name == "default" else user_album_name
 
     s3_upload_response = insert_into_bucket(s3_client, file=new_file, user_given_metadata=picture_metadata, album_name=album_name)
 
