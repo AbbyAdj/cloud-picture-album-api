@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS random;
 
 CREATE DATABASE random;
 
-\c random
+\c random;
 
 CREATE TABLE public.users (
     user_id SERIAL PRIMARY KEY,
@@ -28,7 +28,6 @@ CREATE TABLE public.pictures (
     album_id INT REFERENCES albums(album_id) ON DELETE CASCADE
 );
 
--- ADD INSERT STATEMENTS ONLY IF YOU INTEND TO PREPOPULATE THE DATABASE
 
 INSERT INTO public.users 
 (first_name, last_name)

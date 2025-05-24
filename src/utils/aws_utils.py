@@ -85,9 +85,9 @@ def delete_album_from_bucket(s3_client, album_key: str):
 
 # The function below should only be triggered when the user is deleting their account
 def delete_main_user_album_from_bucket(s3_client, user_id: int):
-    
+    album_key = f"user-{user_id}"
     try:
-        delete_album_from_bucket(s3_client, album_key="", user_id=user_id)
+        delete_album_from_bucket(s3_client, album_key=album_key)
 
     except ClientError as error:
         return {"error": "Deletion unsuccessful. Try again later",
