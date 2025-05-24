@@ -5,8 +5,10 @@ import boto3
 from botocore.exceptions import ClientError
 from src.utils.db_operations import util_funcs
 from src.models.models import PostPictureModel, AddNewUserModel
+
 # from src.api.exception_handler import database_error_handler
-from src.utils.aws_utils import insert_into_bucket, delete_object_from_bucket, delete_album_from_bucket
+from src.utils.aws_utils import insert_into_bucket,delete_object_from_bucket,delete_album_from_bucket,
+
 
 app = FastAPI()
 
@@ -68,31 +70,41 @@ def get_all_user_pictures(user_id: int):
 # POST REQUESTS
 ###########################
 
+
 @app.post("/users/add", status_code=201)
 def add_new_user(new_user: AddNewUserModel):
-    
+
     new_user_response = util_funcs["add_new_user"](user_details=new_user)
 
     return new_user_response
-    
+
 
 @app.post("/users/{user_id}/albums/{album_id}/pictures", status_code=201)
-def post_new_picture(user_id: int, 
-                     album_id: int, 
-                     picture_metadata: PostPictureModel = Form(...),
-                     new_file: UploadFile = File(...)
-                     ):
-    user_album_response = util_funcs["user_album_details"](user_id=user_id, album_id=album_id)["album"]
+def post_new_picture(
+    user_id: int,
+    album_id: int,
+    picture_metadata: PostPictureModel,
+    new_file: UploadFile = File(...),
+):
+
+    if new_file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
+        return {"error": "Invalid file type"}
+    user_album_response = util_funcs["user_album_details"](
+        user_id=user_id, album_id=album_id
+    )["album"]
     user_album_name = user_album_response.get("album_name", default="")
     # If i receive an album id that is not valid, I will put it in the default user album
     album_name = "" if user_album_name == "default" else user_album_name
 
-    s3_upload_response = insert_into_bucket(s3_client, file=new_file, user_given_metadata=picture_metadata, album_name=album_name)
+    s3_upload_response = insert_into_bucket(
+        s3_client,
+        file=new_file,
+        user_given_metadata=picture_metadata,
+        album_name=f"user-{user_id}/{album_name}",
+    )
 
     response = util_funcs["insert_new_picture"](
-        user_id=user_id, 
-        album_id=album_id, 
-        metadata=s3_upload_response
+        user_id=user_id, album_id=album_id, metadata=s3_upload_response
     )
     return response
 
@@ -104,7 +116,6 @@ def post_new_picture(user_id: int,
 # TODO TO BE IMPLEMENTED LATER
 
 
-
 ###########################
 # DELETE REQUESTS
 ###########################
@@ -114,12 +125,12 @@ def post_new_picture(user_id: int,
 def delete_user_picture(user_id: int, picture_id: int):
 
     picture_key = util_funcs["one_picture"]["picture"]["s3_key_name"]
-    
+
     s3_delete_response = delete_object_from_bucket(s3_client, file_key=picture_key)
 
-    response = util_funcs["delete_user_picture"](user_id=user_id, 
-                                                 picture_id=picture_id,
-                                                 delete_confirmation = s3_delete_response)
+    response = util_funcs["delete_user_picture"](
+        user_id=user_id, picture_id=picture_id, delete_confirmation=s3_delete_response
+    )
     return response
 
 
@@ -130,9 +141,10 @@ def delete_user_album(user_id: int, album_id: int):
 
     s3_delete_response = delete_album_from_bucket(s3_client, album_key=album_key)
 
-    response = util_funcs["delete_user_album"](user_id=user_id, 
-                                               album_id=album_id,
-                                               delete_confirmation = s3_delete_response)
+    response = util_funcs["delete_user_album"](
+        user_id=user_id, album_id=album_id, delete_confirmation=s3_delete_response
+    )
     return response
+
 
 # TODO DELETE USER IS A RECURSIVE ACTION. DELETES EVERYTHING!
