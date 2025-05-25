@@ -8,5 +8,4 @@ output "db_username" {
 
 output "db_password" {
     value = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["db_password"]
-
 }

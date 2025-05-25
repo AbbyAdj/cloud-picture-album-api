@@ -21,3 +21,34 @@ variable "iam_instance_profile" {
 variable "ec2_security_groups" {
     type = list(string)
 }
+
+variable "subnet_id" {
+    type = string
+}
+
+variable "github_token" {
+    type = string
+}
+
+variable "db_port" {
+    type = number
+    default = 5432
+}
+
+variable "db_username" {
+    type = string
+}
+
+variable "db_password" {
+    type = string
+}
+
+variable "db_endpoint" {
+    type = string
+}
+
+variable "db_database" {
+    type = string
+    default = "cloud_api_db"
+}
+

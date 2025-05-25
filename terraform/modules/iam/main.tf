@@ -59,12 +59,11 @@ resource "aws_iam_policy" "ec2_combined_policy" {
         Action = [
           "rds-db:connect"
         ],
-        Resource = "arn:aws:rds-db:${data.aws_region.curent_region.name}:a${data.aws_caller_identity.my_caller_id.account_id}:dbuser:${module.db_instance.rds_postgres_instance_identifier}/${module.db_instance.rds_postgres_instance_username}"
+        Resource = "arn:aws:rds-db:${data.aws_region.curent_region.name}:${data.aws_caller_identity.my_caller_id.account_id}:dbuser:${var.rds_identifier}/${var.rds_username}"
       }
     ]
   })
 }
-
 
 # ROLE -> POLICY
 
