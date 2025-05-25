@@ -1,5 +1,5 @@
 from src.utils.connection import connect_to_db, close_db_connection
-from pg8000.dbapi import DatabaseError
+from pg8000.exceptions import DatabaseError
 
 
 def get_table_columns(columns: list) -> list[str]:
@@ -34,14 +34,13 @@ def run_query(query: str, json_key: str | None = None) -> dict | list:
 
     try:
         db_conn = connect_to_db()
+        db_result = db_conn.run(query)
 
     except DatabaseError as e:
-        # TODO: Might need to change to a return 
         print(e)
         return {"message": "Error occured during database operation"}
 
     else:
-        db_result = db_conn.run(query)
         table_columns = get_table_columns(db_conn.columns)
         result = [dict(zip(table_columns, record)) for record in db_result]
 
