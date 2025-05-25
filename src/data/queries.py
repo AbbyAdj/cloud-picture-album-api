@@ -54,18 +54,24 @@ one_picture_sql = """
 """
 
 user_details_sql = """
+    WITH new_table AS (
         SELECT 
-           u.first_name, 
-           u.last_name, 
-           COUNT(a.album_id) AS albums, 
-           COUNT(p.picture_id) AS pictures
+            u.first_name, 
+            u.last_name, 
+            a.album_id, 
+            p.picture_id
         FROM users u
-        LEFT JOIN albums a 
+        JOIN albums a 
         ON u.user_id = a.user_id
         LEFT JOIN pictures p
         ON a.album_id = p.album_id
         WHERE u.user_id = {user_id}
-        GROUP BY u.first_name, u.last_name;
+        GROUP BY p.picture_id, u.first_name, u.last_name, a.album_id
+    )
+
+    SELECT first_name, last_name, COUNT(DISTINCT(album_id)) AS albums, COUNT(picture_id) AS pictures
+    FROM new_table
+    GROUP BY first_name, last_name;
 """
 
 user_albums_sql = """
@@ -77,7 +83,7 @@ user_albums_sql = """
         JOIN albums a
         ON u.user_id = a.user_id
         LEFT JOIN pictures p
-        ON u.user_id = p.user_id
+        ON a.album_id = p.album_id
         WHERE u.user_id = {user_id}
         GROUP BY a.album_name, a.album_description, a.album_id
         ORDER BY a.album_id;
@@ -88,7 +94,7 @@ user_album_sql = """
             a.album_name,
             a.album_s3_path,
             p.picture_name,
-            p.s3_key_name AS picture_s3_path
+            p.s3_key_name AS picture_s3_path,
             p.picture_description,
             p.date_created
         FROM pictures p
@@ -135,22 +141,25 @@ add_new_user_default_album_sql = """
 
 add_new_picture_sql = """
         INSERT INTO pictures
-        (picture_name, 
-        date_created, 
-        s3_key_name, 
-        picture_description,
-        user_id,
-        album_id)
+        (
+            picture_name, 
+            date_created, 
+            s3_key_name, 
+            picture_description,
+            user_id,
+            album_id
+        )
         
         VALUES
         (
-        {picture_name}, 
-        {date_created}, 
-        {s3_key_name}, 
-        {picture_description},
-        {user_id},
-        {album_id}
-        RETURNING *  
+            {picture_name}, 
+            {date_created}, 
+            {s3_key_name}, 
+            {picture_description},
+            {user_id},
+            {album_id}
+        )
+        RETURNING *;
 """
 
 # Returning * returns the deleted rows
@@ -158,16 +167,19 @@ delete_user_picture_sql = """
         DELETE
         FROM pictures
         WHERE
-            pictures.user_id = {user_id}
+            user_id = {user_id}
             AND
-            pictures.album_id = {album_id}
+            picture_id = {picture_id}
         RETURNING pictures.user_id, pictures.picture_id
 """
 
 delete_user_album_sql = """
     DELETE
     FROM albums
-    WHERE album_id = :album_id
+    WHERE 
+        album_id = {album_id}
+        AND
+        user_id = {user_id}
     RETURNING user_id, album_id, album_s3_path
 """
 

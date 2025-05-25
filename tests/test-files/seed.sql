@@ -1,8 +1,6 @@
-DROP DATABASE IF EXISTS random;
-
-CREATE DATABASE random;
-
-\c random;
+DROP TABLE IF EXISTS pictures;
+DROP TABLE IF EXISTS albums;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE public.users (
     user_id SERIAL PRIMARY KEY,
@@ -12,7 +10,7 @@ CREATE TABLE public.users (
 
 CREATE TABLE public.albums (
     album_id SERIAL PRIMARY KEY,
-    album_name VARCHAR UNIQUE NOT NULL,
+    album_name VARCHAR NOT NULL,
     album_s3_path TEXT NOT NULL,
     album_description TEXT,
     user_id INT REFERENCES users(user_id)

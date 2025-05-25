@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 import boto3
 from botocore.config import Config
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, ParamValidationError
 from src.models.models import PostPictureModel
 
 load_dotenv()
@@ -34,64 +35,76 @@ def insert_into_bucket(s3_client, file, user_given_metadata:PostPictureModel, us
                                         Body= file,
                                         Bucket= USERS_BUCKET_NAME,
                                         Key= key)
+        
+        date_created = datetime.now().strftime("%Y-%m-%d")
                 
         object_metadata = {
             "picture_name": user_given_metadata.picture_name,
             "s3_key_name": key,
-            "date_created": put_object_response["Metadata"]['LastModified'].strftime("%Y-%m-%d"),
+            "date_created": date_created,
             "picture_description": user_given_metadata.picture_description,
-            "album_name": user_given_metadata.album_name
+            "album_name": user_album_name
         }
     except ClientError as error:
         return {"error": "Upload unsuccessful. Try again later",
                 "details": error}
+    except ParamValidationError as error:
+        return {"error": "Upload unsuccessful. Try again later",
+                "details": error}
+    
     else:
         return object_metadata
     
 
 def delete_object_from_bucket(s3_client, file_key:str):
     
+    # object_exists = True
     try:
-        delete_object_response = s3_client.delete_object(
-                                                Bucket=USERS_BUCKET_NAME,
-                                                key=file_key,
-                                            )
+        s3_client.get_object(Bucket=USERS_BUCKET_NAME, Key=file_key)
     except ClientError as error:
         return {"error": "Deletion unsuccessful. Try again later",
                 "details": error}
     else:
+        s3_client.delete_object(
+                                Bucket=USERS_BUCKET_NAME,
+                                Key=file_key,
+                                    )
         return {"Success": "Object deleted successfully"}
-    
 
+    
 def delete_album_from_bucket(s3_client, album_key: str):
     
     try:
         get_all_files_in_album = s3_client.list_objects_v2(
                                                 Bucket=USERS_BUCKET_NAME,
                                                 Prefix=album_key
-                                )["Contents"]
+                                )
 
-        all_files = [file_record["Key"] for file_record in get_all_files_in_album]
-
-        for file_key in all_files:
-            delete_object_from_bucket(s3_client, file_key)
+        if "Contents" in get_all_files_in_album.keys():
+            all_files = [file_record["Key"] for file_record in get_all_files_in_album["Contents"]]
+            for file_key in all_files:
+                delete_object_from_bucket(s3_client, file_key)
+            return {"Success": "Object deleted successfully"}
+        else:
+            # print(get_all_files_in_album.keys())
+            return {"error": "Deletion unsuccessful. Try again later",
+                    "details": "Key does not exist"}
 
     except ClientError as error:
         return {"error": "Deletion unsuccessful. Try again later",
                 "details": error}
-    else:
-        return {"Success": "Object deleted successfully"}
     
 
 # The function below should only be triggered when the user is deleting their account
 def delete_main_user_album_from_bucket(s3_client, user_id: int):
     album_key = f"user-{user_id}"
     try:
-        delete_album_from_bucket(s3_client, album_key=album_key)
-
+        response = delete_album_from_bucket(s3_client, album_key=album_key)
+        return response
     except ClientError as error:
         return {"error": "Deletion unsuccessful. Try again later",
                 "details": error}
-    else:
-        return {"Success": "Object deleted successfully"}
+    
+
+
     
