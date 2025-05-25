@@ -23,11 +23,23 @@ data "aws_ami" "ubuntu_24_04" {
 # CREATE EC2 INSTANCE
 
 resource "aws_instance" "album_api" {
-    ami = data.aws_ami.ubuntu_24_04.id
-    instance_type = var.instance_type
-    key_name = var.key_name
-    iam_instance_profile = var.iam_instance_profile
-    user_data = templatefile("../run.sh", {"INSERT ENV VARIABLES TO EXPORT TO .SH"="Hey"})
-    user_data_replace_on_change = var.user_data_replace_on_change
-    vpc_security_group_ids = var.ec2_security_groups
+  ami                  = data.aws_ami.ubuntu_24_04.id
+  instance_type        = var.instance_type
+  key_name             = var.key_name
+  iam_instance_profile = var.iam_instance_profile
+  # user_data = templatefile("${path.root}/run.sh", {})
+  user_data                   = templatefile("${path.root}/run.sh", { GITHUB_TOKEN = var.github_token, 
+                                                                      DB_PORT = var.db_port,
+                                                                      DB_USERNAME = var.db_username, 
+                                                                      DB_ENDPOINT = var.db_endpoint,
+                                                                      DB_DATABASE = var.db_database,
+                                                                      DB_PASSWORD = var.db_password
+                                                                      })
+  user_data_replace_on_change = var.user_data_replace_on_change
+  vpc_security_group_ids      = var.ec2_security_groups
+  subnet_id                   = var.subnet_id
+  associate_public_ip_address = true
+  tags = {
+    Name = "cloud-album-api-instance"
+  }
 }

@@ -10,6 +10,11 @@ variable "db_password" {
     sensitive = true
 }
 
+variable "rds_subnet_group" {
+    type = list(string)
+}
+
 variable "rds_security_groups" {
     type = list(string)
 }
+
