@@ -1,4 +1,3 @@
-
 # VARS FOR ROOT TF 
 
 variable "environment" {
