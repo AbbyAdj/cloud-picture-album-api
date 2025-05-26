@@ -56,7 +56,7 @@ security-test:
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black  ./src/*.py ./test/*.py)
+	$(call execute_in_env, black  ./src/*/*.py ./tests/*/*.py)
 
 ## Run the tests
 run-tests:
@@ -68,3 +68,4 @@ check-coverage:
 
 ## Run all checks
 run-checks: security-test run-black run-tests 
+

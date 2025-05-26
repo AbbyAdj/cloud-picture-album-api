@@ -3,12 +3,20 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from pg8000.dbapi import DatabaseError
 import boto3
 from botocore.exceptions import ClientError
-from src.api.exception_handler import database_error_handler, return_404_error, aws_client_error
+from src.api.exception_handler import (
+    database_error_handler,
+    return_404_error,
+    aws_client_error,
+)
 from src.utils.db_operations import util_funcs
 from src.models.models import PostPictureModel, AddNewUserModel
 
 # from src.api.exception_handler import database_error_handler
-from src.utils.aws_utils import insert_into_bucket,delete_object_from_bucket,delete_album_from_bucket
+from src.utils.aws_utils import (
+    insert_into_bucket,
+    delete_object_from_bucket,
+    delete_album_from_bucket,
+)
 
 
 app = FastAPI()
@@ -24,6 +32,7 @@ s3_client = boto3.client("s3")
 
 # TODO put all get exception raising in a wrapper
 
+
 @app.get("/healthcheck")
 def healthcheck():
     return {"message": "Server is running", "status_code": 200}
@@ -37,7 +46,6 @@ def get_all_users():
     elif "message" in response:
         raise DatabaseError()
     return response
-
 
 
 @app.get("/albums")
@@ -76,7 +84,7 @@ def get_user_albums(user_id: int):
     if not response["albums"]:
         raise HTTPException(404, f"No albums found for user with id {user_id}")
     elif "message" in response:
-        raise DatabaseError()    
+        raise DatabaseError()
     return response
 
 
@@ -84,7 +92,10 @@ def get_user_albums(user_id: int):
 def get_user_album(user_id: int, album_id: int):
     response = util_funcs["user_album_details"](user_id=user_id, album_id=album_id)
     if not response["album"]:
-        raise HTTPException(404, f"Album with album id {album_id} not found for user with user id {user_id}")
+        raise HTTPException(
+            404,
+            f"Album with album id {album_id} not found for user with user id {user_id}",
+        )
     elif "message" in response:
         raise DatabaseError()
     return response
@@ -109,7 +120,7 @@ def get_all_user_pictures(user_id: int):
 def add_new_user(new_user: AddNewUserModel):
 
     new_user_response = util_funcs["add_new_user"](user_details=new_user)
-    
+
     if not new_user_response:
         raise HTTPException(404, "No pictures found")
     elif "message" in new_user_response:
@@ -126,13 +137,15 @@ def post_new_picture(
 ):
 
     if new_file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
-        raise HTTPException(404, "Invalid File Type. Allowed types are jpeg, png and webp")
-    
+        raise HTTPException(
+            404, "Invalid File Type. Allowed types are jpeg, png and webp"
+        )
+
     user_album_response = util_funcs["user_album_details"](
         user_id=user_id, album_id=album_id
     )["album"][0]
 
-    user_album_name = user_album_response.get("album_name","")
+    user_album_name = user_album_response.get("album_name", "")
     # If i receive an album id that is not valid, I will put it in the default user album
     album_name = "" if user_album_name == "default" else user_album_name
 
@@ -153,7 +166,7 @@ def post_new_picture(
         raise ClientError()
     elif not response["picture"][0]:
         raise HTTPException(404, "Unable to add new picture")
-    
+
     return response
 
 
@@ -177,14 +190,16 @@ def delete_user_picture(user_id: int, picture_id: int):
         s3_delete_response = delete_object_from_bucket(s3_client, file_key=picture_key)
 
         response = util_funcs["delete_user_picture"](
-            user_id=user_id, picture_id=picture_id, delete_confirmation=s3_delete_response
+            user_id=user_id,
+            picture_id=picture_id,
+            delete_confirmation=s3_delete_response,
         )
 
         if "message" in response:
             raise DatabaseError()
         elif "error" in response:
             raise HTTPException(404, "Unable to delete picture")
-        
+
         return response
     except IndexError as e:
         raise HTTPException(404, "Unable to delete picture")
@@ -193,27 +208,27 @@ def delete_user_picture(user_id: int, picture_id: int):
 @app.delete("/users/{user_id}/albums/{album_id}")
 def delete_user_album(user_id: int, album_id: int):
     try:
-        album_key = util_funcs["user_album_details"](user_id, album_id)["album"][0]["album_s3_path"]
+        album_key = util_funcs["user_album_details"](user_id, album_id)["album"][0][
+            "album_s3_path"
+        ]
 
         s3_delete_response = delete_album_from_bucket(s3_client, album_key=album_key)
 
         response = util_funcs["delete_user_album"](
             user_id=user_id, album_id=album_id, delete_confirmation=s3_delete_response
         )
-        
+
         if "message" in response:
             raise DatabaseError()
         elif "error" in response:
             raise HTTPException(404, "Unable to delete album")
-        
+
         return response
     except IndexError as e:
         raise HTTPException(404, "Unable to delete album")
 
 
-
 # TODO DELETE USER IS A RECURSIVE ACTION. DELETES EVERYTHING!
-
 
 
 def random_func(picture_metadata: PostPictureModel):
