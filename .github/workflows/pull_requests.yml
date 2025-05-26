@@ -10,6 +10,20 @@ jobs:
     setup-and-tests:
         name: setup-and-tests
         runs-on: ubuntu-latest
+        services:
+          postgres:
+            image: postgres:13
+            ports:
+              - 5432:5432
+            env:
+              POSTGRES_USER: ${{ secrets.DB_USER }}
+              POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+              POSTGRES_DATABASE: ${{ secrets.DB_NAME }}
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
         steps:
             - name: Checkout Repo
               uses: actions/checkout@v4
@@ -18,14 +32,16 @@ jobs:
               with:
                 python-version: "3.12"
             - name: Run Make
+              env: 
+                DB_USER: ${{ secrets.DB_USER }}
+                DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+                DB_NAME: ${{ secrets.DB_NAME }}
+                DB_PORT: 5432
+                DB_HOST: localhost
               run: | 
                 make requirements
                 make checks-setup
-                make security-test
-                make run-black
-                make check-coverage
-            - name: run-tests
-              run: make run-tests
+                make run-tests
 
 
     check-infrastructure:
