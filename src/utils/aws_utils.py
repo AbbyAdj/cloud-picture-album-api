@@ -31,7 +31,7 @@ def insert_into_bucket(
     s3_client, file, user_given_metadata: PostPictureModel, user_album_name=""
 ) -> dict:
 
-    key = f"{user_album_name}/{user_given_metadata.picture_name}"
+    key = f"{user_album_name}{user_given_metadata.picture_name}"
 
     try:
         put_object_response = s3_client.put_object(

@@ -151,10 +151,11 @@ def post_new_picture(
 
     s3_upload_response = insert_into_bucket(
         s3_client,
-        file=new_file,
+        file=new_file.file,
         user_given_metadata=picture_metadata,
         user_album_name=f"user-{user_id}/{album_name}",
     )
+    print(s3_upload_response)
 
     response = util_funcs["insert_new_picture"](
         user_id=user_id, album_id=album_id, metadata=s3_upload_response
@@ -163,8 +164,8 @@ def post_new_picture(
     if "message" in response:
         raise DatabaseError()
     elif "error" in response:
-        raise ClientError()
-    elif not response["picture"][0]:
+    #     raise ClientError()
+    # elif not response["picture"][0]:
         raise HTTPException(404, "Unable to add new picture")
 
     return response
