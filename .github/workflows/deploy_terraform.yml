@@ -75,11 +75,7 @@ jobs:
       - name: Terraform Init
         working-directory: terraform
         run: terraform init
-        
+
       - name: Terraform Apply
         working-directory: terraform
-        run: terraform apply -auto-approve
-        env:
-          MY_IP_ADDRESS: ${{ secrets.MY_IP_ADDRESS }}
-          GITHUB_SECRET_NAME: ${{ secrets.GITHUB_SECRET_NAME }}
-          DB_CRED_SECRET_NAME: ${{ secrets.DB_CRED_SECRET_NAME }}
+        run: terraform apply -auto-approve -var="my_ip_address=${{ secrets.MY_IP_ADDRESS }}" -var="github_secret_name=${{ secrets.GITHUB_SECRET_NAME }}" -var="dv_credentials_secret_name=${{ secrets.DB_CRED_SECRET_NAME }}" \
