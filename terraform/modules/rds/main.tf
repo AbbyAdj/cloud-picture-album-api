@@ -9,6 +9,7 @@ resource "aws_db_instance" "album_api_db" {
     username = var.db_username
     password = var.db_password
     skip_final_snapshot = false
+    final_snapshot_identifier = "albumapidb-deleted-backup"
     vpc_security_group_ids = var.rds_security_groups
     db_subnet_group_name = aws_db_subnet_group.album_api_db_subnet_group.name
     tags = {

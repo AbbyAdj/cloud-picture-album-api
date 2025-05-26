@@ -71,5 +71,51 @@ psql "host=${DB_ENDPOINT} port=${DB_PORT} dbname=${DB_DATABASE} user=${DB_USERNA
 
 sudo apt install python3-venv -y
 
-cd ~/cloud-picture-album-api
+cd cloud-picture-album-api
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+
+# SETUP SYSTEM SERVICE
+
+cat <<EOF > /etc/systemd/system/fastapi.service
+[Unit]
+Description=FastAPI app
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/cloud-picture-album-api
+ExecStart=/home/ubuntu/cloud-picture-album-api/venv/bin/uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+systemctl daemon-reload
+systemctl enable fastapi
+systemctl start fastapi
+
+# nginx setup
+cat <<EOF > /etc/nginx/sites-available/fastapi
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+    }
+}
+EOF
+
+
+ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled/
+rm /etc/nginx/sites-enabled/default
+nginx -t && systemctl restart nginx
 
