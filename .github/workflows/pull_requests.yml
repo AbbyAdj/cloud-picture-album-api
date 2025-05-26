@@ -75,4 +75,4 @@ jobs:
 
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan -auto-approve -var="my_ip_address=${{ secrets.MY_IP_ADDRESS }}" -var="github_secret_name=${{ secrets.GITHUB_SECRET_NAME }}" -var="db_credentials_secret_name=${{ secrets.DB_CRED_SECRET_NAME }}" \
+        run: terraform plan -auto-approve -var="my_ip_address=${{ secrets.MY_IP_ADDRESS }}" -var="github_secret_name=${{ secrets.SECRET_FOR_GITHUB }}" -var="db_credentials_secret_name=${{ secrets.DB_CRED_SECRET_NAME }}" \
