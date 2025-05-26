@@ -1,3 +1,5 @@
+# VARS FOR ROOT TF 
+
 variable "environment" {
     type = string
     default = "dev"
@@ -15,3 +17,5 @@ variable "github_secret_name" {
 variable "db_credentials_secret_name" {
     type = string
 }
+
+
