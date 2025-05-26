@@ -1,8 +1,6 @@
 # CHANGE ENVIRONMENT TO PROD AFTER PROJECT COMPLETION
 
 # export TF_VAR_my_ip_address=$(curl -s https://api.ipify.org)/32
-# export TF_VAR_github_secret_name=github_token_new
-# export TF_VAR_db_credentials_secret_name=merch_api_db_credentials
 
 
 # Backend
