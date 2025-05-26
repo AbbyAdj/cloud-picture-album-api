@@ -33,11 +33,11 @@ jobs:
           python-version: "3.12"
       - name: Run Make
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_NAME: ${{ secrets.DB_NAME }}
-          POSTGRES_PORT: 5432
-          POSTGRES_HOST: localhost
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: 5432
+          DB_HOST: localhost
         run: |
           make requirements
           make checks-setup
