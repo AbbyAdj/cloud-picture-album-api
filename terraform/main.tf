@@ -59,6 +59,7 @@ module "ec2_instance" {
   db_username = module.secrets.db_username
   db_password = module.secrets.db_password
   db_endpoint = module.rds_instance.rds_db_endpoint
+  s3_user_storage_bucket = module.s3_buckets.s3_user_storage_bucket_name
   subnet_id            = module.vpc.cloud_api_vpc_public_subnet[0]
   ec2_security_groups = [
     module.security_group.ec2_security_group,
@@ -77,6 +78,7 @@ module "rds_instance" {
 
 module "s3_buckets" {
   source = "./modules/s3"
+  s3_user_storage_bucket_name = var.s3_user_storage_bucket_name
 }
 
 

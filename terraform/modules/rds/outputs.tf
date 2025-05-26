@@ -7,7 +7,7 @@ output "rds_postgres_instance_username" {
 }
 
 output "rds_db_endpoint" {
-    value = aws_db_instance.album_api_db.endpoint
+    value = aws_db_instance.album_api_db.address
 }
 
 output "rds_database_name" {

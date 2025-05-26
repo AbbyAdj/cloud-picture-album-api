@@ -27,13 +27,13 @@ resource "aws_instance" "album_api" {
   instance_type        = var.instance_type
   key_name             = var.key_name
   iam_instance_profile = var.iam_instance_profile
-  # user_data = templatefile("${path.root}/run.sh", {})
   user_data                   = templatefile("${path.root}/run.sh", { GITHUB_TOKEN = var.github_token, 
                                                                       DB_PORT = var.db_port,
                                                                       DB_USERNAME = var.db_username, 
                                                                       DB_ENDPOINT = var.db_endpoint,
                                                                       DB_DATABASE = var.db_database,
-                                                                      DB_PASSWORD = var.db_password
+                                                                      DB_PASSWORD = var.db_password,
+                                                                      S3_USER_STORAGE_BUCKET=var.s3_user_storage_bucket
                                                                       })
   user_data_replace_on_change = var.user_data_replace_on_change
   vpc_security_group_ids      = var.ec2_security_groups

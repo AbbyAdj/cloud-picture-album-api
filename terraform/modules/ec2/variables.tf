@@ -51,3 +51,6 @@ variable "db_database" {
     type = string
 }
 
+variable "s3_user_storage_bucket" {
+    type = string
+}

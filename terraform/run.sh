@@ -56,6 +56,7 @@ echo DB_USER=${DB_USERNAME} >> .env
 echo DB_HOST=${DB_ENDPOINT} >> .env
 echo DB_DATABASE=${DB_DATABASE} >> .env
 echo DB_PASSWORD=${DB_PASSWORD} >> .env
+echo S3_USER_STORAGE_BUCKET=${S3_USER_STORAGE_BUCKET} >> .env
     
 
 # DATABASE SETUP

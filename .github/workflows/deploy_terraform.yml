@@ -78,4 +78,4 @@ jobs:
 
       - name: Terraform Apply
         working-directory: terraform
-        run: terraform apply -auto-approve -var="my_ip_address=${{ secrets.MY_IP_ADDRESS }}" -var="github_secret_name=${{ secrets.SECRET_FOR_GITHUB }}" -var="db_credentials_secret_name=${{ secrets.DB_CRED_SECRET_NAME }}"
+        run: terraform apply -auto-approve -var="my_ip_address=${{ secrets.MY_IP_ADDRESS }}" -var="github_secret_name=${{ secrets.SECRET_FOR_GITHUB }}" -var="db_credentials_secret_name=${{ secrets.DB_CRED_SECRET_NAME }} -var="s3_user_storage_bucket_name=${{ secrets.S3_USER_STORAGE_BUCKET }}"
