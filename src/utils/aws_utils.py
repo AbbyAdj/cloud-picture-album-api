@@ -104,3 +104,5 @@ def delete_main_user_album_from_bucket(s3_client, user_id: int):
         return response
     except ClientError as error:
         return {"error": "Deletion unsuccessful. Try again later", "details": error}
+
+
