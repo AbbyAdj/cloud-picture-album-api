@@ -55,6 +55,7 @@ module "ec2_instance" {
   source               = "./modules/ec2"
   iam_instance_profile = module.iam_roles.iam_ec2_instance_profile
   github_token = module.secrets.github_token
+  db_database = module.rds_instance.rds_database_name
   db_username = module.secrets.db_username
   db_password = module.secrets.db_password
   db_endpoint = module.rds_instance.rds_db_endpoint

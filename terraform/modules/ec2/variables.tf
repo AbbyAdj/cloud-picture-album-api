@@ -49,6 +49,5 @@ variable "db_endpoint" {
 
 variable "db_database" {
     type = string
-    default = "cloud_api_db"
 }
 
