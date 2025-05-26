@@ -64,6 +64,7 @@ sudo apt install postgresql -y
 
 psql "host=${DB_ENDPOINT} port=${DB_PORT} dbname=${DB_DATABASE} user=${DB_USERNAME} password=${DB_PASSWORD} sslmode=require" -f /home/ubuntu/cloud-picture-album-api/src/data/setup-database.sql
 
+
 # GET SERVER UP AND RUNNING
 
 # sudo apt install make
