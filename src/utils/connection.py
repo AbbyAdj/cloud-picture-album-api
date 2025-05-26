@@ -13,7 +13,7 @@ def connect_to_db():
 
     # print(PG_USER, "host:", PG_HOST, PG_DATABASE, PG_PASSWORD)
     conn = Connection(
-        user=PG_USER, host=PG_HOST, database=PG_DATABASE, password=PG_PASSWORD, ssl_context=True
+        user=PG_USER, host=PG_HOST, database=PG_DATABASE, password=PG_PASSWORD
     )
 
     return conn
