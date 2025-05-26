@@ -171,8 +171,9 @@ class TestGetUserAlbumEndpoint:
 
         data = response.json()
 
-        assert data == {"detail": f"Album with album id {album_id} not found for user with user id {user_id}"}
-
+        assert data == {
+            "detail": f"Album with album id {album_id} not found for user with user id {user_id}"
+        }
 
 
 # @pytest.mark.skip
@@ -203,4 +204,3 @@ class TestGetUserPicturesEndpoint:
         data = response.json()
 
         assert data == {"detail": f"No pictures found for user with id {user_id}"}
-

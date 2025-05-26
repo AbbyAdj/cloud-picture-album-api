@@ -11,7 +11,7 @@ def connect_to_db():
     PG_DATABASE = os.getenv("DB_DATABASE", default="postgres")
     PG_PASSWORD = os.getenv("DB_PASSWORD")
 
-    # print(PG_USER, "host:", PG_HOST, PG_DATABASE, PG_PASSWORD)    
+    # print(PG_USER, "host:", PG_HOST, PG_DATABASE, PG_PASSWORD)
     conn = Connection(
         user=PG_USER, host=PG_HOST, database=PG_DATABASE, password=PG_PASSWORD
     )

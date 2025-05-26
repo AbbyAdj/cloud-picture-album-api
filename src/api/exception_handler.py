@@ -10,17 +10,16 @@ def database_error_handler(request: Request, exc: DatabaseError):
         content={"detail": "A database error occurred."},
     )
 
+
 def return_404_error(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
     )
 
+
 def aws_client_error(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=500,
         content={"detail": "AWS Client Error Occured."},
     )
-
-
-

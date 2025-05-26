@@ -39,7 +39,7 @@ def util_return_user_details(user_id: int) -> dict:
 def util_return_user_albums(user_id: int) -> dict:
     user_albums_query = queries["user_albums"].format(user_id=literal(user_id))
     user_albums = run_query(user_albums_query, "albums")
-    return  user_albums
+    return user_albums
 
 
 def util_return_user_album_details(user_id: int, album_id: int) -> dict:
@@ -56,47 +56,48 @@ def util_return_all_user_pictures(user_id) -> dict:
     return all_user_pictures
 
 
-def util_add_new_user(user_details:AddNewUserModel) -> dict:
+def util_add_new_user(user_details: AddNewUserModel) -> dict:
 
     new_user_query = queries["add_new_user"].format(
         first_name=literal(user_details.first_name),
-        last_name=literal(user_details.last_name)
-        )
+        last_name=literal(user_details.last_name),
+    )
 
     new_user_id = run_query(new_user_query)
 
     new_user_album_query = queries["add_new_user_default_album"].format(
-        user_id = literal(new_user_id[0]["user_id"])
+        user_id=literal(new_user_id[0]["user_id"])
     )
 
     new_album_response = run_query(new_user_album_query)
 
     if "message" in new_album_response or "message" in new_user_id:
         return {"message": "Error occured during database operation"}
-    
-    return {"success": "User created successfully",
-            "Details": {
-                "first_name": user_details.first_name,
-                "last_name": user_details.last_name,
-                "user_id": new_album_response[0]["user_id"],
-                "album_id": new_album_response[0]["album_id"],
-                "album_name": new_album_response[0]["album_name"]
-                        }
-            }
+
+    return {
+        "success": "User created successfully",
+        "Details": {
+            "first_name": user_details.first_name,
+            "last_name": user_details.last_name,
+            "user_id": new_album_response[0]["user_id"],
+            "album_id": new_album_response[0]["album_id"],
+            "album_name": new_album_response[0]["album_name"],
+        },
+    }
 
 
 def util_insert_new_picture(user_id, album_id, metadata) -> dict:
     if "error" in metadata.keys():
         return metadata
-    
+
     new_picture_query = queries["add_new_picture"].format(
-                                    picture_name=literal(metadata["picture_name"]),
-                                    date_created=literal(metadata["date_created"]),
-                                    s3_key_name=literal(metadata["s3_key_name"]),
-                                    picture_description=literal(metadata["picture_description"]),
-                                    user_id=literal(user_id),
-                                    album_id=literal(album_id)
-                                )
+        picture_name=literal(metadata["picture_name"]),
+        date_created=literal(metadata["date_created"]),
+        s3_key_name=literal(metadata["s3_key_name"]),
+        picture_description=literal(metadata["picture_description"]),
+        user_id=literal(user_id),
+        album_id=literal(album_id),
+    )
     new_picture = run_query(new_picture_query, "picture")
     return new_picture
 
@@ -104,13 +105,17 @@ def util_insert_new_picture(user_id, album_id, metadata) -> dict:
 def util_delete_user_picture(user_id, picture_id, delete_confirmation) -> dict:
     if "error" in delete_confirmation.keys():
         return delete_confirmation
-    
+
     elif "Success" in delete_confirmation.keys():
         delete_user_picture_query = queries["delete_user_picture"].format(
             user_id=literal(user_id), picture_id=literal(picture_id)
         )
         result = run_query(delete_user_picture_query)
-        if result and result[0]["user_id"] == user_id and result[0]["picture_id"] == picture_id:
+        if (
+            result
+            and result[0]["user_id"] == user_id
+            and result[0]["picture_id"] == picture_id
+        ):
             return {
                 "success": f"User {user_id}'s picture with picture id {picture_id} deleted successfully"
             }
@@ -120,8 +125,8 @@ def util_delete_user_picture(user_id, picture_id, delete_confirmation) -> dict:
 
 def util_delete_user_album(user_id, album_id, delete_confirmation) -> dict:
     if "error" in delete_confirmation.keys():
-        return delete_confirmation  
-    
+        return delete_confirmation
+
     elif "Success" in delete_confirmation.keys():
 
         delete_user_album_query = queries["delete_user_album"].format(
@@ -130,7 +135,11 @@ def util_delete_user_album(user_id, album_id, delete_confirmation) -> dict:
 
         result = run_query(delete_user_album_query)
 
-        if result and result[0]["user_id"] == user_id and result[0]["album_id"] == album_id:
+        if (
+            result
+            and result[0]["user_id"] == user_id
+            and result[0]["album_id"] == album_id
+        ):
             return {
                 "success": f"User {user_id}'s album with album id {album_id} deleted successfully"
             }
